@@ -1,0 +1,115 @@
+---
+swagger: "2.0"
+info:
+  description: "หน่วยงานสามารถยืนยันตัวบุคคลโดยใช้ข้อมูลจากบัตรประชาชน และเลขหลังบ\
+    ัตร ผ่าน Government API ที่ สรอ. จัดเตรียมไว้ให้ ดังนี้"
+  version: "1.0.0"
+  title: "กรมการปกครอง / ตรวจสอบข้อมูลโดยใช้ข้อมูลบนบัตรฯ และเลขหลังบัตร"
+host: "ws.ega.or.th"
+basePath: "/ws/dopa/verification"
+schemes:
+- "https"
+produces:
+- "application/json"
+paths:
+  /personal:
+    get:
+      tags:
+      - "dopa, personal, verify, verification, laser code"
+      summary: "การเรียกตรวจสอบข้อมูลบุคคลว่าตรงกับที่มีอยู่ในฐานข้อมูลทะเบียนราษฎ\
+        ร์หรือไม่"
+      description: "การเรียกตรวจสอบข้อมูลบุคคลของบุคคลนั้น ๆ ว่าตรงกับที่มีอยู่ใน\
+        \ ฐานข้อมูลทะเบียนราษฎร์ กรมการปกครอง หรือไม่ โดยใช้เลขหลังบัตรประชาชน (Laser\
+        \ Code)"
+      parameters:
+      - name: "Consumer-Key"
+        in: "header"
+        description: "ชุดรหัสที่ สรอ. ออกให้ เพื่อความปลอดภัยในการเรียกใช้งาน API"
+        required: true
+        type: "string"
+        x-exportParamName: "ConsumerKey"
+      - name: "Token"
+        in: "header"
+        description: "TOKEN ที่ได้รับกลับมาจาก สรอ. ในการ Validate API (https://app.swaggerhub.com/apis/dga/Validate/1.0)"
+        required: true
+        type: "string"
+        x-exportParamName: "Token"
+      - name: "Content-Type"
+        in: "header"
+        required: false
+        type: "string"
+        default: "application/x-www-form-urlencoded; charset=utf-8"
+        x-exportParamName: "ContentType"
+        x-optionalDataType: "String"
+      - name: "CitizenID"
+        in: "query"
+        description: "หมายเลขบัตรประจำตัวประชาชน 13 หลัก"
+        required: true
+        type: "string"
+        x-exportParamName: "CitizenID"
+      - name: "FirstName"
+        in: "query"
+        description: "ชื่อจริง (ภาษาไทย)"
+        required: true
+        type: "string"
+        x-exportParamName: "FirstName"
+      - name: "LastName"
+        in: "query"
+        description: "นามสกุล (ภาษาไทย)"
+        required: true
+        type: "string"
+        x-exportParamName: "LastName"
+      - name: "BEBirthDate"
+        in: "query"
+        description: "วัน/เดือน/ปีเกิด (พ.ศ.)  โดยมีรูปแบบเป็น YYYYMMDD"
+        required: true
+        type: "string"
+        x-exportParamName: "BEBirthDate"
+      - name: "LaserCode"
+        in: "query"
+        description: "หมายเลขหลังบัตรประจำตัวประชาชน"
+        required: true
+        type: "string"
+        x-exportParamName: "LaserCode"
+      responses:
+        "200":
+          description: "OK (ผลการตรวจสอบ)"
+          schema:
+            $ref: "#/definitions/Verify"
+        "204":
+          description: "No Content ไม่พบข้อมูลที่ต้องการ"
+        "400":
+          description: "Bad Request มีการกำหนด Parameter มาไม่ครบหรือไม่ถูกต้อง"
+        "401":
+          description: "Unauthorized ยังไม่ได้ทำการ Validate Consumer Key/ Token ห\
+            มดอายุการใช้งาน"
+        "403":
+          description: "Forbidden ไม่ได้รับอนุญาตให้ใช้งาน Service ที่กำลังเรียกใช\
+            ้"
+        "404":
+          description: "Not Found ไม่พบ Service ที่เรียกใช้"
+        "405":
+          description: "Method Not Allowed เรียกใช้งาน Service ผ่าน http Method ที\
+            ่ไม่ถูกต้อง"
+        "500":
+          description: "Internal Server Error มีข้อผิดพลาดเกิดขึ้นขณะที่กำลังทำงาน"
+          schema:
+            $ref: "#/definitions/DopaError"
+        "503":
+          description: "Service Unavailable Service ปลายทางไม่สามารถให้บริการได้"
+definitions:
+  Verify:
+    type: "object"
+    properties:
+      Result:
+        type: "boolean"
+        description: "ผลการตรวจสอบ (true คือ ตรงกับฐานข้อมูลทะเบียนราษฎร์ หรือ false\
+          \ คือ ไม่ตรงกับฐานข้อมูลทะเบียนราษฎร์)"
+    example:
+      Result: true
+  DopaError:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+        description: "บัตรสิ้นสภาพการใช้งาน เนื่องจากกรณีบัตรหาย"

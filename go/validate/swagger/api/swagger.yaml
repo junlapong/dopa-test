@@ -1,0 +1,84 @@
+---
+swagger: "2.0"
+info:
+  description: "Obtain authentication token for further api requests. / ยืนยันตนกั\
+    บ DGA API Platform เพื่อใช้ในการเข้าถึง API ตามสิทธิที่หน่วยงานได้รับ"
+  version: "1.0"
+  title: "Validate"
+host: "virtserver.swaggerhub.com"
+basePath: "/dga/Validate/1.0"
+schemes:
+- "https"
+produces:
+- "application/json"
+paths:
+  /validate:
+    get:
+      tags:
+      - "validate"
+      summary: "Validate"
+      description: "ตรวจสอบความถูกต้องของ Consumer Key และ Consumer Secret เพื่อขอ\
+        \ Token และเปิด Session ในการเรียกใช้ Service\n"
+      parameters:
+      - name: "Consumer-Key"
+        in: "header"
+        description: "ชุดรหัสที่ สรอ. ออกให้ เพื่อความปลอดภัยในการเรียกใช้งาน API"
+        required: true
+        type: "string"
+        x-exportParamName: "ConsumerKey"
+      - name: "Content-Type"
+        in: "header"
+        required: false
+        type: "string"
+        default: "application/x-www-form-urlencoded; charset=utf-8"
+        x-exportParamName: "ContentType"
+        x-optionalDataType: "String"
+      - name: "ConsumerSecret"
+        in: "query"
+        description: "ชุดรหัสที่ สรอ. ออกให้ เพื่อความปลอดภัยในการเรียกใช้งาน API"
+        required: true
+        type: "string"
+        x-exportParamName: "ConsumerSecret"
+      - name: "AgentID"
+        in: "query"
+        description: "- เลขบัตรประชาชน 13 หลัก ของผู้ที่เข้ามาดูข้อมูลในระบบ  \n-\
+          \ เป็นค่าที่สามารถบ่งบอกได้ว่า User ใดที่เข้ามาใช้งาน Service ใน Session\
+          \ นั้น ๆ\n- เป็นค่า Unique ID ของแต่ละ Session โดยทาง สรอ. กำหนดไว้ให้ \n"
+        required: true
+        type: "string"
+        x-exportParamName: "AgentID"
+      responses:
+        "200":
+          description: "OK และ TOKEN ที่สามารถนำไปใช้ประกอบการพัฒนา API ในการเรียก\
+            ขอข้อมูลต่าง ๆ"
+          schema:
+            $ref: "#/definitions/TokenResult"
+        "204":
+          description: "No Content ไม่พบข้อมูลที่ต้องการ"
+        "400":
+          description: "Bad Request มีการกำหนด Parameter มาไม่ครบหรือไม่ถูกต้อง"
+        "401":
+          description: "Unauthorized ยังไม่ได้ทำการ Validate Consumer Key/ Token ห\
+            มดอายุการใช้งาน"
+        "403":
+          description: "Forbidden ไม่ได้รับอนุญาตให้ใช้งาน Service ที่กำลังเรียกใช\
+            ้"
+        "404":
+          description: "Not Found ไม่พบ Service ที่เรียกใช้"
+        "405":
+          description: "Method Not Allowed เรียกใช้งาน Service ผ่าน http Method ที\
+            ่ไม่ถูกต้อง"
+        "500":
+          description: "Internal Server Error มีข้อผิดพลาดเกิดขึ้นขณะที่กำลังทำงาน"
+        "503":
+          description: "Service Unavailable Service ปลายทางไม่สามารถให้บริการได้"
+definitions:
+  TokenResult:
+    type: "object"
+    properties:
+      Result:
+        type: "string"
+        description: "TOKEN ที่ระบบของ สรอ. สร้างให้และส่งกลับมา เพื่อนำไปใช้ในการ\
+          พัฒนา API เรียกใช้ข้อมูล"
+    example:
+      Result: "Result"
